@@ -1,5 +1,5 @@
 <%
-  if( p.type === 'array' && p.items.$ref ) {
+  if(p.type === 'array' && p.items.$ref) {
     const schema = models.find(x => x.name === p.schema);
     if(!schema) return;
     %><%name = schema.name%>    <%- getName(key) %>: []<%- p.schema  %>{
@@ -9,7 +9,7 @@
       <%}); %>          }
                   },<%
   } else if (p.allOf) {
-    const schema = models.find(x=>x.name===p.schema);
+    const schema = models.find(x => x.name === p.schema);
     name = schema.name;
     if(!schema) return;
     %>    <%- getName(key) %>: dto.<%- p.schema  %> {
@@ -21,57 +21,43 @@
 %>
 <% function getName(str){ return str.charAt(0).toUpperCase() + str.slice(1);} -%>
 <% function getExample(pp,keyValue,schema){
-    if(pp.type==='array')
-    {
-        let result="[]string";
-        let list="{";
-        if(typeof(pp.example)==='undefined'){
-        }
-        else{
-          JSON.parse(pp.example).forEach(item=>{
-            list+="\""+item+"\",";
+    if(pp.type === 'array') {
+        let result = "[]string";
+        let list = "{";
+        if(typeof(pp.example) === 'undefined') {
+        } else {
+          JSON.parse(pp.example).forEach(item => {
+            list += "\""+item+"\",";
           });
         }
-        list+="}";
-        return result+list;
-    }
-    else if(typeof(pp.example)==='object'){
-      let str="{";
-      Object.keys(pp.example).forEach((item)=>{
-           if(typeof pp.example[item]==="string"){
-            str+="    "+item+"="+"\""+pp.example[item]+"\""+",";
-           }
-           else if(typeof pp.example[item]==="number"){
-            str+="    "+item+"="+pp.example[item]+",";
+        list += "}";
+        return result + list;
+    } else if(typeof(pp.example) === 'object') {
+      let str = "{";
+      Object.keys(pp.example).forEach((item) => {
+           if(typeof pp.example[item]==="string") {
+            str += "    " + item + "=" + "\"" + pp.example[item] + "\"" + ",";
+           } else if(typeof pp.example[item]==="number") {
+            str += "    " + item + "=" + pp.example[item] + ",";
            }
       });
-      str+="}";
-      return "dto."+schema+" "+str;
-    }
-    else if(pp.type==='string'){
+      str += "}";
+      return "dto." + schema + " " + str;
+    } else if(pp.type === 'string') {
       //如果是枚举
-      if(typeof(pp.enum)!='undefined'){
-        if(typeof(pp.example!='undefined'))
-        {
-        return schema+"."+keyValue+"."+pp.example.toUpperCase();
+      if(typeof(pp.enum) !== 'undefined') {
+        if(typeof(pp.example !== 'undefined')) {
+            return schema + "." + keyValue + "." + pp.example.toUpperCase();
+        } else if(typeof(pp.default !== 'undefined')) {
+          return schema + "." + keyValue + "." + pp.default.toUpperCase();
         }
-        else if(typeof(pp.default!='undefined')){
-          return schema+"."+keyValue+"."+pp.default.toUpperCase();
-        }
-      }else{
+      } else {
       }
-      return  "\""+ pp.example+"\"";
+      return  "\"" + pp.example + "\"";
+    } else if(pp.type === 'boolean') {
+      return pp.example ?? pp.default;
+    } else {
+      return pp.example ?? pp.default;
     }
-    else if(pp.type==='boolean'){
-      return pp.example??pp.default;
-    }
-    else
-    {
-      return pp.example??pp.default;
-    }
-  }
-
-  function ConvertToList(params) {
-    return JSON.parse(params);
   }
 -%>
