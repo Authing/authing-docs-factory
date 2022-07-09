@@ -27,7 +27,7 @@
 | gender | string | 否 | U | 性别。 枚举值：`M`,`W`,`U` | `M` |
 | emailVerified | boolean | 否 | - | 邮箱是否验证。  | `true` |
 | phoneVerified | boolean | 否 | - | 手机号是否验证。  | `true` |
-| birthdate | string | 否 | - | 出生日期。  | `2022-07-08` |
+| birthdate | string | 否 | - | 出生日期。  | `2022-07-09` |
 | country | string | 否 | - | 所在国家。  | `CN` |
 | province | string | 否 | - | 所在省份。  | `BJ` |
 | city | string | 否 | - | 所在城市。  | `BJ` |
@@ -67,7 +67,7 @@ data = management_client.create_user(
      gender: "M",
      email_verified: true,
      phone_verified: true,
-     birthdate: "2022-07-08",
+     birthdate: "2022-07-09",
      country: "CN",
      province: "BJ",
      city: "BJ",
@@ -128,7 +128,7 @@ data = management_client.create_user(
   "apiCode": 20001,
   "data": {
     "userId": "6229ffaxxxxxxxxcade3e3d9",
-    "createdAt": "2022-07-08T12:56:15.061Z",
+    "createdAt": "2022-07-09T12:06:41.833Z",
     "status": "Activated",
     "email": "test@example.com",
     "phone": "176xxxx6754",
@@ -143,8 +143,8 @@ data = management_client.create_user(
     "gender": "M",
     "emailVerified": true,
     "phoneVerified": true,
-    "passwordLastSetAt": "2022-07-08T12:56:15.061Z",
-    "birthdate": "2022-07-08",
+    "passwordLastSetAt": "2022-07-09T12:06:41.833Z",
+    "birthdate": "2022-07-09",
     "country": "CN",
     "province": "BJ",
     "city": "BJ",
@@ -164,7 +164,7 @@ data = management_client.create_user(
       "school": "北京大学",
       "age": 22
     },
-    "statusChangedAt": "2022-07-08T12:56:16.793Z"
+    "statusChangedAt": "2022-07-09T12:06:50.979Z"
   }
 }
 ```
@@ -207,7 +207,7 @@ data = management_client.create_user(
 | 名称 | 类型 | 必填 | 描述 |
 | ---- |  ---- | ---- | ---- |
 | userId | string | 是 | 用户 ID。 示例值： `6229ffaxxxxxxxxcade3e3d9`  |
-| createdAt | string | 是 | 账号创建时间。 示例值： `2022-07-08T12:56:15.061Z`  |
+| createdAt | string | 是 | 账号创建时间。 示例值： `2022-07-09T12:06:41.833Z`  |
 | status | string | 是 | 账户当前状态。 枚举值：`Suspended`,`Resigned`,`Activated`,`Archived`  |
 | email | string | 否 | 邮箱。 示例值： `test@example.com`  |
 | phone | string | 否 | 手机号。 示例值： `176xxxx6754`  |
@@ -222,8 +222,8 @@ data = management_client.create_user(
 | gender | string | 是 | 性别。 枚举值：`M`,`W`,`U`  |
 | emailVerified | boolean | 是 | 邮箱是否验证。 示例值： `true`  |
 | phoneVerified | boolean | 是 | 手机号是否验证。 示例值： `true`  |
-| passwordLastSetAt | string | 否 | 用户上次密码修改时间。 示例值： `2022-07-08T12:56:15.061Z`  |
-| birthdate | string | 否 | 出生日期。 示例值： `2022-07-08`  |
+| passwordLastSetAt | string | 否 | 用户上次密码修改时间。 示例值： `2022-07-09T12:06:41.833Z`  |
+| birthdate | string | 否 | 出生日期。 示例值： `2022-07-09`  |
 | country | string | 否 | 所在国家。 示例值： `CN`  |
 | province | string | 否 | 所在省份。 示例值： `BJ`  |
 | city | string | 否 | 所在城市。 示例值： `BJ`  |
@@ -235,7 +235,7 @@ data = management_client.create_user(
 | departmentIds | array | 否 | 用户所属部门 ID 列表。 示例值： `["624d930c3xxxx5c08dd4986e","624d93102xxxx012f33cd2fe"]`  |
 | identities | array | 否 | 外部身份源。嵌套类型：<a href="#IdentityDto">IdentityDto</a>。   |
 | customData | object | 否 | 用户的扩展字段数据。 示例值： `[object Object]`  |
-| statusChangedAt | string | 否 | 用户状态上次修改时间。 示例值： `2022-07-08T12:56:16.793Z`  |
+| statusChangedAt | string | 否 | 用户状态上次修改时间。 示例值： `2022-07-09T12:06:50.979Z`  |
 
 
 ### <a id="IdentityDto"></a> IdentityDto
