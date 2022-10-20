@@ -48,3 +48,6 @@ data
 
 # env
 .env
+
+management-openapi.json
+authentication-openapi.json

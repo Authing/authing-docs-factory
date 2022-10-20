@@ -84,7 +84,7 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
 
 exports.generateSidebar = async ({ languages, authenticaionTags, authenticationPaths, managementTags, managementPaths }) => {
   // Generate Sidebar
-  const PREFIX = '/reference-new/sdk-v5/';
+  const PREFIX = '/reference/sdk/';
   await fs.mkdir(DIR, { recursive: true });
   const sidebar = [];
   for (const language of languages) {
