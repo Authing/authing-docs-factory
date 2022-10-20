@@ -1,0 +1,65 @@
+```csharp
+
+using Authing.CSharp.SDK.Models;
+using Authing.CSharp.SDK.Services;
+using Authing.CSharp.SDK.Utils;
+using Authing.CSharp.SDK.UtilsImpl;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Example
+{
+    class Program
+    {
+      private static ManagementClientOptions options;
+      private static string ACCESS_Key_ID = "AUTHING_USERPOOL_ID";
+      private static string ACCESS_KEY_SECRET = "AUTHING_USERPOOL_SECRET";
+
+      static void Main(string[] args)
+      {
+          MainAsync().GetAwaiter().GetResult();
+      }
+
+      private static async Task MainAsync()
+      {
+          options = new ManagementClientOptions()
+          {
+              AccessKeyId = ACCESS_Key_ID,
+              AccessKeySecret = ACCESS_KEY_SECRET,
+          };
+
+          ManagementClient managementClient = new ManagementClient(options);
+        <% let a=0 %><% let name="" %><%  if(request){name=request.name} %>
+          <%- response.name %>  result = await managementClient.<%- ConvertFirstCharUpper(fnNameCamel) %>
+          (<% if (request) { %>  new <%- request.name -%>{<% } -%>
+            <%  options.parameters.forEach((p)=>{%> <% a++ %>
+                <%-convertKeyWord(p.name)%>: <%- `${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}${getParammeterValue(p)}${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}` -%>
+<% if(a<options.parameters.length){%>,<%}%><%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/csharp_params', {key,p,models,name}) -%>
+            <%}); %><% }%><% if(request){%>}<%}%>
+          );
+        }
+    }
+}
+<% function convertKeyWord(str){ if(str === "namespace"){return "nameSpace"}else{return str}} %>
+<% function ConvertFirstCharUpper(str){ return str.charAt(0).toUpperCase() + str.slice(1);} -%>
+<% function getParammeterValue(param){
+  if(typeof param.example==='undefined'){
+     if(param.default!=null){
+       return param.default;
+     }
+     else{
+       if(param.schema!=null){
+         return param.schema.default;
+       }
+       else
+       {
+         //需要根据数据类型返回默认值
+       }
+     }
+  }
+  else{
+    return param.example;
+  }
+} -%>
+```

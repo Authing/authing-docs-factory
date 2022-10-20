@@ -1,0 +1,52 @@
+# <%- options.summary %>
+
+<!--
+  警告⚠️：
+  不要直接修改该文档，
+  https://github.com/Authing/authing-docs-factory
+  使用该项目进行生成
+-->
+
+<LastUpdated />
+
+<%- options.description %>
+
+## 请求参数
+
+| 名称 | 类型 | <div style="width:80px">是否必填</div> | <div style="width:60px">默认值</div> | <div style="width:300px">描述</div> | <div style="width:200px">示例值</div> |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+<% if (options.parameters) { %><% options.parameters.sort((a,b)=> a.required ? -1 : 1).forEach(function(p){ %> | <%- p.name %> | <%- p.schema.type === 'array' ? `${p.schema.items.type}[]` : p.schema.type %>  | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p.schema.default || '-' %> | <%- p.description.replace(/\n/g, '<br>') %> <%- p.schema.maxItems ? `数组长度限制：${p.schema.maxItems}。`: '' %> | <% if(p.example) { %>`<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
+<% }); %><% } %><% if (request) { %><% Object.entries(request.properties).sort((a,b)=> a[1].required ? -1 : 1).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) {  if (p.type==='array') { if(p.items.type) { %><%- p.items.type %>[]<%  } else {%><a href="#<%- p.items.$ref.replace('#/components/schemas/','') %>"><%- p.items.$ref.replace('#/components/schemas/','') %>[]</a><%} } else {%><%- p.type %><% }} else { %><a href="#<%- p.schema %>"><%- p.schema %></a><% } %> | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p.default || '-' %> | <%- p.description.replace(/\n/g, '<br>') %> <%- p.maxItems ? `数组长度限制：${p.maxItems}。`: '' %> | <% if(p.example) { %>`<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
+<% }); %><% } %>
+
+<!-- 暂时不显示示例代码 -->
+<!-- ## 示例代码
+<%- include(`./${language}`,{fnNameCamel, fnNameSnake, options, request, models}) %> -->
+
+
+## 请求响应
+
+类型： `<%- response.name %>`
+
+| 名称 | 类型 | 描述 |
+| ---- | ---- | ---- |
+<% if (response) { %><% Object.entries(response.properties).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) { %><%- p.type %><% } else { %><a href="#<%- p.schema %>"><%- p.schema %></a><% } %> | <%- p.description.replace(/\n/g, '<br>') %> |
+<% }); %><% } %>
+
+
+示例结果：
+
+```json
+<%- responseJson %>
+```
+
+## 数据结构
+
+<% models.forEach(function(model){ %>
+### <a id="<%- model.name %>"></a> <%- model.name %>
+
+| 名称 | 类型 | <div style="width:80px">是否必填</div> | <div style="width:300px">描述</div> | <div style="width:200px">示例值</div> |
+| ---- |  ---- | ---- | ---- | ---- |
+<% Object.entries(model.properties).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) { %><%- p.type %><% } %> | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p.description.replace(/\n/g, '<br>') %> <% if(p.schema) { %>嵌套类型：<a href="#<%- p.schema %>"><%- p.schema %></a>。<% } %><%- p.maxItems ? `数组长度限制：${p.maxItems}。`: '' %>  | <% if(p.enum) { %><%= p.enum[0]; %><% } else if(p.example) { %> `<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
+<% }); %>
+<% }); %>

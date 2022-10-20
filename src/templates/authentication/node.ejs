@@ -12,7 +12,7 @@ const managementClient = new ManagementClient({
   const result = await managementClient.<%- fnNameCamel %>({
 <% options.parameters.forEach((p)=>{%>
     <%- p.name %>: <%- `${p.schema.type==='string'?"'":''}${typeof p.example==='object'? JSON.stringify(p.example) : p.example??p.schema.default}${p.schema.type==='string'?"'":''}` %>,
-<%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../partial/node_params', {key,p,models}) %>
+<%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/node_params', {key,p,models}) %>
 <%}); %><% } %> });
 })();
 ```

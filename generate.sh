@@ -1,4 +1,5 @@
-curl https://console.test2.authing-inc.co/auth-openapi-json > openapi.json
+curl https://console.test2.authing-inc.co/auth-openapi-json > authentication-openapi.json
+curl https://console.test2.authing-inc.co/openapi-json > management-openapi.json
 yarn build 
 
 # 清除历史内容

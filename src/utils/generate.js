@@ -34,8 +34,9 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
       ...getSchemaModels(schemaNameReq, components.schemas),
       ...getSchemaModels(schemaNameRes, components.schemas)
     ].map((name) => getSchema(name, components.schemas));
+    const ejsFile = isAuthApi ? join(__dirname, '../templates/authentication/main.ejs') : join(__dirname, '../templates/management/main.ejs')
     const output = await ejs.renderFile(
-      join(__dirname, '../templates/main.ejs'),
+      ejsFile,
       {
         language,
         path,
@@ -81,11 +82,7 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
   }
 };
 
-exports.generateSidebar = async ({ languages, tags, paths, isAuthApi }) => {
-  await fs.rm(DIR, {
-    recursive: true,
-    force: true
-  });
+exports.generateSidebar = async ({ languages, authenticaionTags, authenticationPaths, managementTags, managementPaths }) => {
   // Generate Sidebar
   const PREFIX = '/reference-new/sdk-v5/';
   await fs.mkdir(DIR, { recursive: true });
@@ -131,44 +128,126 @@ exports.generateSidebar = async ({ languages, tags, paths, isAuthApi }) => {
       ]
     };
 
-    let subCategories = []
+    // 固定的菜单
+    const defaultCategories = [
+      {
+        tag: "登录",
+        apis: [
+          {
+            title: "账号密码登录",
+            path: `${category}authentication/登录/signin-by-account-password.md`
+          },
+          {
+            title: "用户名密码登录",
+            path: `${category}authentication/登录/signin-by-username-password.md`
+          },
+          {
+            title: "手机号密码登录",
+            path: `${category}authentication/登录/signin-by-phone-password.md`
+          },
+          {
+            title: "邮箱密码登录",
+            path: `${category}authentication/登录/signin-by-email-password.md`
+          },
+          {
+            title: "邮箱验证码登录",
+            path: `${category}authentication/登录/signin-by-email-passcode.md`
+          },
+          {
+            title: "手机号验证码登录",
+            path: `${category}authentication/登录/signin-by-phone-passcode.md`
+          },
+          {
+            title: "LDAP 账号登录",
+            path: `${category}authentication/登录/signin-by-ldap.md`
+          },
+          {
+            title: "AD 账号登录",
+            path: `${category}authentication/登录/signin-by-ad.md`
+          }
+        ]
+      },
+      {
+        tag: "注册",
+        apis: [
+          {
+            title: "用户名密码注册",
+            path: `${category}authentication/注册/signup-by-username-password.md`
+          },
+          {
+            title: "邮箱密码注册",
+            path: `${category}authentication/注册/signup-by-email-password.md`
+          },
+          {
+            title: "手机号验证码注册",
+            path: `${category}authentication/注册/signup-by-phone-passcode.md`
+          },
+          {
+            title: "邮箱验证码注册",
+            path: `${category}authentication/注册/signup-by-email-passcode.md`
+          }
+        ]
+      }
+    ]
 
-    for (const tag of tags) {
+    // 生成认证的 sidebar
+    let authenticationSubCategories = []
+    for (const tag of authenticaionTags) {
       const subCategory = {
         title: tag.name.split('/')[0],
         // path: `${category}${tag.path}/`,
-        children: []
+        children: defaultCategories.find(x => x.tag === tag.name)?.apis || []
       };
-      const apis = filterApisByTag(paths, tag);
+      const apis = filterApisByTag(authenticationPaths, tag);
       if (Object.keys(apis).length === 0) {
         continue;
       }
       for (const path in apis) {
         const data = apis[path]
         let filePath;
-        if (isAuthApi) {
-          filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
-        } else {
-          filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`
-        }
+        filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
         subCategory.children.push({
           title: data?.get?.summary || data?.post?.summary,
           path: filePath
         });
       }
       if (subCategory.children.length > 0) {
-        subCategories.push(subCategory);
+        authenticationSubCategories.push(subCategory);
       }
     }
 
-    if (isAuthApi) {
-      sidebarLang.children[1].children.unshift(...subCategories);
-    } else {
-      sidebarLang.children[2].children.push(...subCategories);
+
+    // 生成管理的 sidebar
+    let managementSubCategories = []
+    for (const tag of managementTags) {
+      const subCategory = {
+        title: tag.name.split('/')[0],
+        // path: `${category}${tag.path}/`,
+        children: []
+      };
+      const apis = filterApisByTag(managementPaths, tag);
+      if (Object.keys(apis).length === 0) {
+        continue;
+      }
+      for (const path in apis) {
+        const data = apis[path]
+        let filePath;
+        filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`
+        subCategory.children.push({
+          title: data?.get?.summary || data?.post?.summary,
+          path: filePath
+        });
+      }
+      if (subCategory.children.length > 0) {
+        managementSubCategories.push(subCategory);
+      }
     }
 
+    sidebarLang.children[1].children.unshift(...authenticationSubCategories);
+    sidebarLang.children[2].children.push(...managementSubCategories);
     sidebar.push(sidebarLang);
   }
+
   await fs.writeFile(
     join(DIR, 'sidebar.json'),
     JSON.stringify(sidebar, null, 2),

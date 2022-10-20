@@ -35,7 +35,7 @@ namespace Example
           (<% if (request) { %>  new <%- request.name -%>{<% } -%>
             <%  options.parameters.forEach((p)=>{%> <% a++ %>
                 <%-convertKeyWord(p.name)%>: <%- `${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}${getParammeterValue(p)}${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}` -%>
-<% if(a<options.parameters.length){%>,<%}%><%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../partial/csharp_params', {key,p,models,name}) -%>
+<% if(a<options.parameters.length){%>,<%}%><%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/csharp_params', {key,p,models,name}) -%>
             <%}); %><% }%><% if(request){%>}<%}%>
           );
         }

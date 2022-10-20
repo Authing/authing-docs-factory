@@ -5,7 +5,7 @@ const path = require('path');
 const AVAILABLE_METHODS = ['get', 'post', 'put', 'delete', 'patch'];
 
 exports.getLanguages = async () => {
-  const order = [
+  const languages = [
     'java',
     'node',
     'go',
@@ -13,15 +13,7 @@ exports.getLanguages = async () => {
     'php',
     'csharp'
   ]
-  const files = await fs.readdir(path.join(__dirname, '../templates/sdk'));
-  return files
-    .filter((file) => file.endsWith('.ejs'))
-    .map((file) => file.replace(/\.ejs$/, ''))
-    .sort((a, b) => {
-      const indexA = order.indexOf(a);
-      const indexB = order.indexOf(b);
-      return indexA - indexB
-    })
+  return languages
 };
 
 exports.getTags = (tags) => {

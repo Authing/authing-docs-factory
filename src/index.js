@@ -5,15 +5,10 @@ const { getTags, getLanguages, filterApisByTag } = require('./utils/helper');
 
 const DIR = join(__dirname, '../generated');
 
-async function main() {
-  // TODO: Read API Spec online
-  const file = await fs.readFile('openapi.json', 'utf-8');
-  const spec = JSON.parse(file);
+async function generateMarkdown(spec, languages) {
   const isAuthApi = spec.info.title === 'Authing Authentication API'
-  const languages = await getLanguages();
   const tags = getTags(spec.tags);
-  // Generate Sidebar
-  await generateSidebar({ languages, tags, paths: spec.paths, isAuthApi });
+
   // Generate Docs
   for (const language of languages) {
     for (let tag of tags) {
@@ -41,6 +36,36 @@ async function main() {
       }
     }
   }
+}
+
+async function main() {
+
+  await fs.rm(DIR, {
+    recursive: true,
+    force: true
+  });
+
+  // 需要生成的语言
+  const languages = await getLanguages();
+
+  // 解析 openapi spec 文件
+  const authenticationSpecfile = await fs.readFile('authentication-openapi.json', 'utf-8');
+  const authenticationSpec = JSON.parse(authenticationSpecfile);
+  const managementSpecfile = await fs.readFile('management-openapi.json', 'utf-8');
+  const managementSpec = JSON.parse(managementSpecfile);
+
+  // 生成 markdown 文档
+  await generateMarkdown(authenticationSpec, languages);
+  await generateMarkdown(managementSpec, languages);
+
+  // 生成 Sidebar.json
+  await generateSidebar({ 
+    languages, 
+    authenticaionTags: getTags(authenticationSpec.tags), 
+    authenticationPaths: authenticationSpec.paths,
+    managementTags: getTags(managementSpec.tags),
+    managementPaths: managementSpec.paths
+  });
 }
 
 main().catch((e) => console.error(e));

@@ -1,0 +1,28 @@
+```java
+import cn.authing.sdk.java.client.AuthenticationClient;
+import cn.authing.sdk.java.dto.*;
+import cn.authing.sdk.java.model.AuthenticationClientOptions;
+
+class Test {
+    public static void main(String[] args) {
+        // 设置初始化参数
+        AuthenticationClientOptions clientOptions = new AuthenticationClientOptions();
+        clientOptions.setAppId("AUTHING_APP_ID"); // Authing 应用 ID
+        clientOptions.setAppSecret("AUTHING_APP_SECRET"); // Authing 应用密钥
+        clientOptions.setAppHost("AUTHING_APP_HOST"); // Authing 应用域名，如 https://example.authing.cn
+        clientOptions.setRedirectUri("AUTHING_APP_REDIRECT_URI"); // Authing 应用配置的登录回调地址
+    
+        // 初始化 AuthenticationClient
+        AuthenticationClient authenticationClient = new AuthenticationClient(clientOptions);
+    
+        <% let a = 0 %><% let name = "" %><%  if(request) {name = request.name} %>
+        <% if (request) { %><%- request.name %> request = new <%- request.name %>();<% } %>
+        <%  options.parameters.forEach((p) => {%> <% a++ %>
+        request.set<%- convertFirstCharUpper(p.name) %>(<%- `${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}${p.example??p.schema.default}${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}` -%>);<%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/java_params', {key,p,models,name}) -%>
+        <%}); %><% }%><% if(request){%><%}%>
+        <%- response.name %> response = managementClient.<%- fnNameCamel %>(request);
+        System.out.println(response);
+    }
+}
+<% function convertFirstCharUpper(str){ return str.charAt(0).toUpperCase() + str.slice(1);} -%>
+```
