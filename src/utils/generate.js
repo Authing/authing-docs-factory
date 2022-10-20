@@ -162,7 +162,7 @@ exports.generateSidebar = async ({ languages, tags, paths, isAuthApi }) => {
     }
 
     if (isAuthApi) {
-      sidebarLang.children[1].children.push(...subCategories);
+      sidebarLang.children[1].children.unshift(...subCategories);
     } else {
       sidebarLang.children[2].children.push(...subCategories);
     }
