@@ -5,27 +5,61 @@ const path = require('path');
 const AVAILABLE_METHODS = ['get', 'post', 'put', 'delete', 'patch'];
 
 exports.getLanguages = async () => {
+  const order = [
+    'java',
+    'node',
+    'go',
+    'python',
+    'php',
+    'csharp'
+  ]
   const files = await fs.readdir(path.join(__dirname, '../templates/sdk'));
   return files
     .filter((file) => file.endsWith('.ejs'))
-    .map((file) => file.replace(/\.ejs$/, ''));
+    .map((file) => file.replace(/\.ejs$/, ''))
+    .sort((a, b) => {
+      const indexA = order.indexOf(a);
+      const indexB = order.indexOf(b);
+      return indexA - indexB
+    })
 };
 
-exports.getTags = (tags) =>
-  tags.map(({ name, description }) => ({
+exports.getTags = (tags) => {
+  tags = tags.map(({ name, description }) => ({
     name,
     description,
     path: `${name.replace(/\s/g, '-').toLowerCase()}`
   }));
 
-exports.filterApisByTag = (paths, tag) =>
-  Object.entries(paths).filter(([, options]) =>
-    AVAILABLE_METHODS.some(
-      (method) =>
-        options?.[method]?.tags.includes(tag) &&
-        !options?.[method]?.['x-authing-hidden-from-sdk']
-    )
-  );
+  // 将 登录/概述、登录/扫码登录这些聚合为一个 Tag
+  const realTags = [];
+  for (const tag of tags) {
+    const realTagName = tag.name.split('/')[0];
+    const realPath = tag.path.split('/')[0];
+    if (!realTags.find(x => x.name === realTagName)) {
+      realTags.push({
+        name: realTagName,
+        description: tag.description,
+        path: realPath
+      })
+    }
+  }
+  return realTags;
+}
+
+exports.filterApisByTag = (paths, tag) => {
+  const apis = {};
+  for (const path in paths) {
+    for (const method in paths[path]) {
+      const api = paths[path][method];
+      const tags = api.tags?.map(x => x.split('/')[0]);
+      if (tags?.includes(tag.name) && !api['x-authing-hidden-from-sdk']) {
+        apis[path] = paths[path]
+      }
+    }
+  }
+  return apis;
+}
 
 exports.getSchemaName = (schema) =>
   schema?.$ref.replace(/^#\/components\/schemas\//, '');

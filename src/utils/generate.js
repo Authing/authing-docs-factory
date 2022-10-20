@@ -20,56 +20,68 @@ const LANGUAGES = {
 
 const DIR = join(__dirname, '../../generated');
 
-exports.generate = async ({ language, path, options, tag, components }) => {
-  const { requestBody, responses } = options;
-  const schemaNameReq = getSchemaName(
-    requestBody?.content['application/json'].schema
-  );
-  const schemaNameRes = getSchemaName(
-    responses['200'].content['application/json'].schema
-  );
-  const models = [
-    ...getSchemaModels(schemaNameReq, components.schemas),
-    ...getSchemaModels(schemaNameRes, components.schemas)
-  ].map((name) => getSchema(name, components.schemas));
-  const output = await ejs.renderFile(
-    join(__dirname, '../templates/main.ejs'),
-    {
+exports.generate = async ({ language, path, options, tag, components, isAuthApi }) => {
+
+  try {
+    const { requestBody, responses } = options;
+    const schemaNameReq = getSchemaName(
+      requestBody?.content['application/json'].schema
+    );
+    const schemaNameRes = getSchemaName(
+      responses['200'].content['application/json'].schema
+    );
+    const models = [
+      ...getSchemaModels(schemaNameReq, components.schemas),
+      ...getSchemaModels(schemaNameRes, components.schemas)
+    ].map((name) => getSchema(name, components.schemas));
+    const output = await ejs.renderFile(
+      join(__dirname, '../templates/main.ejs'),
+      {
+        language,
+        path,
+        options,
+        tag,
+        components,
+        models,
+        fnNameCamel: path
+          .replace('/api/v3/', '')
+          .replace(/-(.)/g, ($1) => $1.toUpperCase())
+          .replace(/-/g, ''),
+        fnNameSnake: path.replace('/api/v3/', '').replace(/-/g, '_'),
+        request: getSchema(schemaNameReq, components.schemas),
+        response: getSchema(schemaNameRes, components.schemas),
+        responseJson: JSON.stringify(
+          getExampleJson(schemaNameRes, components.schemas),
+          null,
+          2
+        )
+      },
+      {
+        // async: true
+      }
+    );
+    const file = isAuthApi ? join(
+      DIR,
       language,
-      path,
-      options,
-      tag,
-      components,
-      models,
-      fnNameCamel: path
-        .replace('/api/v3/', '')
-        .replace(/-(.)/g, ($1) => $1.toUpperCase())
-        .replace(/-/g, ''),
-      fnNameSnake: path.replace('/api/v3/', '').replace(/-/g, '_'),
-      request: getSchema(schemaNameReq, components.schemas),
-      response: getSchema(schemaNameRes, components.schemas),
-      responseJson: JSON.stringify(
-        getExampleJson(schemaNameRes, components.schemas),
-        null,
-        2
-      )
-    },
-    {
-      // async: true
-    }
-  );
-  const file = join(
-    DIR,
-    language,
-    tag.path,
-    `${path.replace(/^\/api\/v3\//, '')}.md`
-  );
-  await fs.writeFile(file, output, {
-    encoding: 'utf-8'
-  });
+      'authentication',
+      tag.path.split('/')[0],
+      `${path.replace(/^\/api\/v3\//, '')}.md`
+    ) : join(
+      DIR,
+      language,
+      'management',
+      tag.path.split('/')[0],
+      `${path.replace(/^\/api\/v3\//, '')}.md`
+    )
+    await fs.writeFile(file, output, {
+      encoding: 'utf-8'
+    });
+  } catch (error) {
+    console.log('build 失败：', error)
+  }
 };
 
-exports.generateSidebar = async ({ languages, tags, paths }) => {
+exports.generateSidebar = async ({ languages, tags, paths, isAuthApi }) => {
   await fs.rm(DIR, {
     recursive: true,
     force: true
@@ -93,7 +105,24 @@ exports.generateSidebar = async ({ languages, tags, paths }) => {
         },
         {
           title: '用户认证模块',
-          path: `${category}authentication.md`
+          children: [
+            {
+              title: "OIDC 模块",
+              path: `${category}authentication/oidc.md`
+            },
+            {
+              title: "OAuth 模块",
+              path: `${category}authentication/oauth.md`
+            },
+            {
+              title: "SAML 模块",
+              path: `${category}authentication/saml.md`
+            },
+            {
+              title: "CAS 模块",
+              path: `${category}authentication/cas.md`
+            }
+          ]
         },
         {
           title: '管理模块',
@@ -101,23 +130,43 @@ exports.generateSidebar = async ({ languages, tags, paths }) => {
         }
       ]
     };
+
+    let subCategories = []
+
     for (const tag of tags) {
       const subCategory = {
-        title: tag.name,
+        title: tag.name.split('/')[0],
         // path: `${category}${tag.path}/`,
         children: []
       };
-      const apis = filterApisByTag(paths, tag.name);
-      for (const [path, data] of apis) {
+      const apis = filterApisByTag(paths, tag);
+      if (Object.keys(apis).length === 0) {
+        continue;
+      }
+      for (const path in apis) {
+        const data = apis[path]
+        let filePath;
+        if (isAuthApi) {
+          filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
+        } else {
+          filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`
+        }
         subCategory.children.push({
           title: data?.get?.summary || data?.post?.summary,
-          path: `${category}${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
+          path: filePath
         });
       }
       if (subCategory.children.length > 0) {
-        sidebarLang.children[2].children.push(subCategory);
+        subCategories.push(subCategory);
       }
     }
+
+    if (isAuthApi) {
+      sidebarLang.children[1].children.push(...subCategories);
+    } else {
+      sidebarLang.children[2].children.push(...subCategories);
+    }
+
     sidebar.push(sidebarLang);
   }
   await fs.writeFile(
