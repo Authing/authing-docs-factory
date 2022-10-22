@@ -1,30 +1,3 @@
 ```go
-package main
-
-import (
-    "github.com/Authing/authing-golang-sdk/management"
-    "github.com/Authing/authing-golang-sdk/dto"
-
-    "fmt"
-)
-
-func main() {
-    options := management.ClientOptions {
-        AccessKeyId:     "AUTHING_USERPOOL_ID",
-        AccessKeySecret: "AUTHING_USERPOOL_SECRET",
-    }
-
-    client, err := management.NewClient(&options)
-    if err != nil {
-        // The exception needs to be handled by the developer.
-    }
-<% let a=0 %><% let name="" %><%  if(request){name=request.name} %>
-    response := client.<%- fnNameCamel %>(
-    <% if (request) { %>  dto.<%- request.name %> {<% } %>
-    <%  options.parameters.forEach((p)=>{%> <% a++ %>
-        <%-p.name%>: <%- `${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}${p.example??p.schema.default}${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}` -%>
-        <% if(a<options.parameters.length){%>,<%}%><%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/go_params', {key,p,models,name}) -%>
-    <%}); %><% }%><% if(request){%>}<%}%>
-  )
-}
+<%- codeSample %>
 ```

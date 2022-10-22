@@ -19,9 +19,14 @@
 <% }); %><% } %><% if (request) { %><% Object.entries(request.properties).sort((a,b)=> a[1].required ? -1 : 1).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) {  if (p.type==='array') { if(p.items.type) { %><%- p.items.type %>[]<%  } else {%><a href="#<%- p.items.$ref.replace('#/components/schemas/','') %>"><%- p.items.$ref.replace('#/components/schemas/','') %>[]</a><%} } else {%><%- p.type %><% }} else { %><a href="#<%- p.schema %>"><%- p.schema %></a><% } %> | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p.default || '-' %> | <%- p.description.replace(/\n/g, '<br>') %> <%- p.maxItems ? `数组长度限制：${p.maxItems}。`: '' %> | <% if(p.example) { %>`<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
 <% }); %><% } %>
 
-## 示例代码
-<%- include(`./${language}`,{fnNameCamel, fnNameSnake, options, request, models}) %>
+<% if (codeSample) { %>
 
+## 示例代码
+
+<%- include(`./${language}`,{codeSample}) %>
+
+<% } %>
+  
 ## 请求响应
 
 类型： `<%- response.name %>`

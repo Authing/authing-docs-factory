@@ -1,4 +1,5 @@
 const ejs = require('ejs');
+const { existsSync } = require('fs');
 const fs = require('fs/promises');
 const { join } = require('path');
 const { filterApisByTag } = require('./helper');
@@ -35,6 +36,7 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
       ...getSchemaModels(schemaNameRes, components.schemas)
     ].map((name) => getSchema(name, components.schemas));
     const ejsFile = isAuthApi ? join(__dirname, '../templates/authentication/main.ejs') : join(__dirname, '../templates/management/main.ejs')
+    const codeSamples = options['x-authing-code-samples'];
     const output = await ejs.renderFile(
       ejsFile,
       {
@@ -55,7 +57,8 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
           getExampleJson(schemaNameRes, components.schemas),
           null,
           2
-        )
+        ),
+        codeSample: codeSamples && codeSamples[language]
       },
       {
         // async: true
@@ -206,10 +209,16 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
         const data = apis[path]
         let filePath;
         filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
-        subCategory.children.push({
-          title: data?.get?.summary || data?.post?.summary,
-          path: filePath
-        });
+
+        const mdFilePath = join(__filename, '../../../generated/', language, 'authentication', `${tag.path}/${path.replace(/^\/api\/v3\//, '')}.md`)
+
+        if (existsSync(mdFilePath)) {
+          subCategory.children.push({
+            title: data?.get?.summary || data?.post?.summary,
+            path: filePath
+          });
+        }
+   
       }
       if (subCategory.children.length > 0) {
         authenticationSubCategories.push(subCategory);
@@ -233,10 +242,15 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
         const data = apis[path]
         let filePath;
         filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`
-        subCategory.children.push({
-          title: data?.get?.summary || data?.post?.summary,
-          path: filePath
-        });
+
+        const mdFilePath = join(__filename, '../../../generated/', language, 'management', `${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}.md`)
+
+        if (existsSync(mdFilePath)) {
+          subCategory.children.push({
+            title: data?.get?.summary || data?.post?.summary,
+            path: filePath
+          });
+        }
       }
       if (subCategory.children.length > 0) {
         managementSubCategories.push(subCategory);

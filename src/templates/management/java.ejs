@@ -1,23 +1,3 @@
 ```java
-import cn.authing.sdk.java.dto.*;
-import cn.authing.sdk.java.client.ManagementClient;
-import cn.authing.sdk.java.model.ManagementClientOptions;
-
-class Test {
-    private static String ACCESS_KEY_ID = "AUTHING_USERPOOL_ID";
-    private static String ACCESS_KEY_SECRET = "AUTHING_USERPOOL_SECRET";
-
-    public static void main(String[] args) {
-        ManagementClientOptions clientOptions = new ManagementClientOptions(ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-        ManagementClient managementClient = new ManagementClient(clientOptions);
-    <% let a = 0 %><% let name = "" %><%  if(request) {name = request.name} %>
-        <% if (request) { %><%- request.name %> request = new <%- request.name %>();<% } %>
-        <%  options.parameters.forEach((p) => {%> <% a++ %>
-        request.set<%- convertFirstCharUpper(p.name) %>(<%- `${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}${p.example??p.schema.default}${p.schema.type==='string'||p.schema?.items?.type==='string'?"\"":''}` -%>);<%}); %><% if (request) { %><% Object.entries(request.properties).forEach(function([key,p]){ %><%- include('../base/java_params', {key,p,models,name}) -%>
-        <%}); %><% }%><% if(request){%><%}%>
-        <%- response.name %> response = managementClient.<%- fnNameCamel %>(request);
-        System.out.println(response);
-    }
-}
-<% function convertFirstCharUpper(str){ return str.charAt(0).toUpperCase() + str.slice(1);} -%>
+<%- codeSample %>
 ```

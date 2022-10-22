@@ -1,5 +1,5 @@
-curl https://console.test2.authing-inc.co/auth-openapi-json > authentication-openapi.json
-curl https://console.test2.authing-inc.co/openapi-json > management-openapi.json
+curl http://localhost:3000/auth-openapi-json > authentication-openapi.json
+curl http://localhost:3000/openapi-json > management-openapi.json
 yarn build 
 
 # 生成新内容
