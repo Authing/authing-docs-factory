@@ -9,6 +9,7 @@ const {
   getSchemaModels,
   getExampleJson
 } = require('./helper');
+const { camelCase } = require('./camelcase')
 
 const LANGUAGES = {
   // python: 'Python',
@@ -20,6 +21,36 @@ const LANGUAGES = {
 };
 
 const DIR = join(__dirname, '../../generated');
+
+const convertFirstCharToUpperCase = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+const camelToSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+
+const getOperationName = (operationId) => {
+  return camelCase(
+    operationId
+      .split('_')[1]
+      .replace(/^[^a-zA-Z]+/g, '')
+      .replace(/[^\w\-]+/g, '-')
+      .trim()
+  );
+};
+
+const getFuncName = (lang, operationId) => {
+  let opName = getOperationName(operationId);
+
+  if (lang === 'csharp') {
+    opName = convertFirstCharToUpperCase(opName)
+  } else if (lang == 'go') {
+    opName = convertFirstCharToUpperCase(opName)
+  } else if (lang === 'python') {
+    opName = camelToSnakeCase(opName)
+  }
+
+  return opName
+}
 
 exports.generate = async ({ language, path, options, tag, components, isAuthApi }) => {
 
@@ -58,7 +89,8 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
           null,
           2
         ),
-        codeSample: codeSamples && codeSamples[language]
+        codeSample: codeSamples && codeSamples[language],
+        funcName: getFuncName(language, options.operationId)
       },
       {
         // async: true
@@ -92,6 +124,21 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
   const sidebar = [];
   for (const language of languages) {
     const category = `${PREFIX}${language}/`;
+
+    const logoutDoc = {
+      "title": "登出",
+      "children": [
+        {
+          "title": "前端登出",
+          "path": `/reference/sdk/${language}/authentication/登出/front-channel-logout.md`
+        },
+        {
+          "title": "后端登出",
+          "path": `/reference/sdk/${language}/authentication/登出/backend-channel-logout.md`
+        }
+      ]
+    }
+
     const sidebarLang = {
       title:
         LANGUAGES[language] ||
@@ -218,7 +265,7 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
             path: filePath
           });
         }
-   
+
       }
       if (subCategory.children.length > 0) {
         authenticationSubCategories.push(subCategory);
@@ -258,6 +305,10 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
     }
 
     sidebarLang.children[1].children.unshift(...authenticationSubCategories);
+
+    // 拼接退出登录的文档
+    sidebarLang.children[1].children.splice(1, 0, logoutDoc);
+
     sidebarLang.children[2].children.push(...managementSubCategories);
     sidebar.push(sidebarLang);
   }
