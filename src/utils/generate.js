@@ -125,6 +125,24 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
   for (const language of languages) {
     const category = `${PREFIX}${language}/`;
 
+    const tokenDoc = {
+      "title": "管理 Token",
+      "children": [
+        {
+          "title": "获取 Token",
+          "path": `/reference/sdk/${language}/authentication/管理-token/get-access-token.md`
+        },
+        {
+          "title": "校验 Token",
+          "path": `/reference/sdk/${language}/authentication/管理-token/introspect-token.md`
+        },
+        {
+          "title": "撤销 Token",
+          "path": `/reference/sdk/${language}/authentication/管理-token/revoke-token.md`
+        }
+      ]
+    }
+
     const logoutDoc = {
       "title": "登出",
       "children": [
@@ -214,7 +232,11 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
           {
             title: "AD 账号登录",
             path: `${category}authentication/登录/signin-by-ad.md`
-          }
+          },
+          {
+            "title": "生成登录地址",
+            "path": `${category}authentication/登录/build-authorize-url.md`
+          },
         ]
       },
       {
@@ -306,7 +328,8 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
 
     sidebarLang.children[1].children.unshift(...authenticationSubCategories);
 
-    // 拼接退出登录的文档
+    // 拼接退出登录和 token 管理的文档
+    sidebarLang.children[1].children.splice(1, 0, tokenDoc);
     sidebarLang.children[1].children.splice(1, 0, logoutDoc);
 
     sidebarLang.children[2].children.push(...managementSubCategories);
