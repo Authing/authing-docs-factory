@@ -9,7 +9,7 @@ const {
   getSchemaModels,
   getExampleJson
 } = require('./helper');
-const { camelCase } = require('./camelcase')
+const { camelCase } = require('./camelcase');
 
 const LANGUAGES = {
   // python: 'Python',
@@ -22,35 +22,32 @@ const LANGUAGES = {
 
 const DIR = join(__dirname, '../../generated');
 
-const convertFirstCharToUpperCase = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
+const convertFirstCharToUpperCase = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const camelToSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-const getOperationName = (operationId) => {
-  return camelCase(
+const getOperationName = (operationId) => camelCase(
     operationId
       .split('_')[1]
       .replace(/^[^a-zA-Z]+/g, '')
-      .replace(/[^\w\-]+/g, '-')
+      .replace(/[^\w\\-]+/g, '-')
       .trim()
   );
-};
 
 const getFuncName = (lang, operationId) => {
   let opName = getOperationName(operationId);
 
   if (lang === 'csharp') {
-    opName = convertFirstCharToUpperCase(opName)
+    opName = convertFirstCharToUpperCase(opName);
+  // eslint-disable-next-line eqeqeq
   } else if (lang == 'go') {
-    opName = convertFirstCharToUpperCase(opName)
+    opName = convertFirstCharToUpperCase(opName);
   } else if (lang === 'python') {
-    opName = camelToSnakeCase(opName)
+    opName = camelToSnakeCase(opName);
   }
 
-  return opName
-}
+  return opName;
+};
 
 exports.generate = async ({ language, path, options, tag, components, isAuthApi }) => {
 
@@ -66,7 +63,7 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
       ...getSchemaModels(schemaNameReq, components.schemas),
       ...getSchemaModels(schemaNameRes, components.schemas)
     ].map((name) => getSchema(name, components.schemas));
-    const ejsFile = isAuthApi ? join(__dirname, '../templates/authentication/main.ejs') : join(__dirname, '../templates/management/main.ejs')
+    const ejsFile = isAuthApi ? join(__dirname, '../templates/authentication/main.ejs') : join(__dirname, '../templates/management/main.ejs');
     const codeSamples = options['x-authing-code-samples'];
     const output = await ejs.renderFile(
       ejsFile,
@@ -108,16 +105,16 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
       'management',
       tag.path.split('/')[0],
       `${path.replace(/^\/api\/v3\//, '')}.md`
-    )
+    );
     await fs.writeFile(file, output, {
       encoding: 'utf-8'
     });
   } catch (error) {
-    console.log('build 失败：', error)
+    console.log('build 失败：', error);
   }
 };
 
-exports.generateSidebar = async ({ languages, authenticaionTags, authenticationPaths, managementTags, managementPaths }) => {
+exports.generateSidebar = async ({ languages, authenticationTags, authenticationPaths, managementTags, managementPaths }) => {
   // Generate Sidebar
   const PREFIX = '/reference/sdk/';
   await fs.mkdir(DIR, { recursive: true });
@@ -126,36 +123,36 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
     const category = `${PREFIX}${language}/`;
 
     const tokenDoc = {
-      "title": "管理 Token",
-      "children": [
+      'title': '管理 Token',
+      'children': [
         {
-          "title": "获取 Token",
-          "path": `/reference/sdk/${language}/authentication/管理-token/get-access-token.md`
+          'title': '获取 Token',
+          'path': `/reference/sdk/${language}/authentication/管理-token/get-access-token.md`
         },
         {
-          "title": "校验 Token",
-          "path": `/reference/sdk/${language}/authentication/管理-token/introspect-token.md`
+          'title': '校验 Token',
+          'path': `/reference/sdk/${language}/authentication/管理-token/introspect-token.md`
         },
         {
-          "title": "撤销 Token",
-          "path": `/reference/sdk/${language}/authentication/管理-token/revoke-token.md`
+          'title': '撤销 Token',
+          'path': `/reference/sdk/${language}/authentication/管理-token/revoke-token.md`
         }
       ]
-    }
+    };
 
     const logoutDoc = {
-      "title": "登出",
-      "children": [
+      'title': '登出',
+      'children': [
         {
-          "title": "前端登出",
-          "path": `/reference/sdk/${language}/authentication/登出/front-channel-logout.md`
+          'title': '前端登出',
+          'path': `/reference/sdk/${language}/authentication/登出/front-channel-logout.md`
         },
         {
-          "title": "后端登出",
-          "path": `/reference/sdk/${language}/authentication/登出/backend-channel-logout.md`
+          'title': '后端登出',
+          'path': `/reference/sdk/${language}/authentication/登出/backend-channel-logout.md`
         }
       ]
-    }
+    };
 
     const sidebarLang = {
       title:
@@ -172,19 +169,19 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
           title: '用户认证模块',
           children: [
             {
-              title: "OIDC 模块",
+              title: 'OIDC 模块',
               path: `${category}authentication/oidc.md`
             },
             {
-              title: "OAuth 模块",
+              title: 'OAuth 模块',
               path: `${category}authentication/oauth.md`
             },
             {
-              title: "SAML 模块",
+              title: 'SAML 模块',
               path: `${category}authentication/saml.md`
             },
             {
-              title: "CAS 模块",
+              title: 'CAS 模块',
               path: `${category}authentication/cas.md`
             }
           ]
@@ -199,72 +196,72 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
     // 固定的菜单
     const defaultCategories = [
       {
-        tag: "登录",
+        tag: '登录',
         apis: [
           {
-            title: "账号密码登录",
+            title: '账号密码登录',
             path: `${category}authentication/登录/signin-by-account-password.md`
           },
           {
-            title: "用户名密码登录",
+            title: '用户名密码登录',
             path: `${category}authentication/登录/signin-by-username-password.md`
           },
           {
-            title: "手机号密码登录",
+            title: '手机号密码登录',
             path: `${category}authentication/登录/signin-by-phone-password.md`
           },
           {
-            title: "邮箱密码登录",
+            title: '邮箱密码登录',
             path: `${category}authentication/登录/signin-by-email-password.md`
           },
           {
-            title: "邮箱验证码登录",
+            title: '邮箱验证码登录',
             path: `${category}authentication/登录/signin-by-email-passcode.md`
           },
           {
-            title: "手机号验证码登录",
+            title: '手机号验证码登录',
             path: `${category}authentication/登录/signin-by-phone-passcode.md`
           },
           {
-            title: "LDAP 账号登录",
+            title: 'LDAP 账号登录',
             path: `${category}authentication/登录/signin-by-ldap.md`
           },
           {
-            title: "AD 账号登录",
+            title: 'AD 账号登录',
             path: `${category}authentication/登录/signin-by-ad.md`
           },
           {
-            "title": "生成登录地址",
-            "path": `${category}authentication/登录/build-authorize-url.md`
-          },
+            'title': '生成登录地址',
+            'path': `${category}authentication/登录/build-authorize-url.md`
+          }
         ]
       },
       {
-        tag: "注册",
+        tag: '注册',
         apis: [
           {
-            title: "用户名密码注册",
+            title: '用户名密码注册',
             path: `${category}authentication/注册/signup-by-username-password.md`
           },
           {
-            title: "邮箱密码注册",
+            title: '邮箱密码注册',
             path: `${category}authentication/注册/signup-by-email-password.md`
           },
           {
-            title: "手机号验证码注册",
+            title: '手机号验证码注册',
             path: `${category}authentication/注册/signup-by-phone-passcode.md`
           },
           {
-            title: "邮箱验证码注册",
+            title: '邮箱验证码注册',
             path: `${category}authentication/注册/signup-by-email-passcode.md`
           }
         ]
       }
-    ]
+    ];
 
     // 生成认证的 sidebar
-    let authenticationSubCategories = []
-    for (const tag of authenticaionTags) {
+    const authenticationSubCategories = [];
+    for (const tag of authenticationTags) {
       const subCategory = {
         title: tag.name.split('/')[0],
         // path: `${category}${tag.path}/`,
@@ -272,14 +269,17 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
       };
       const apis = filterApisByTag(authenticationPaths, tag);
       if (Object.keys(apis).length === 0) {
+        // eslint-disable-next-line no-continue
         continue;
       }
+      // eslint-disable-next-line guard-for-in
       for (const path in apis) {
-        const data = apis[path]
+        const data = apis[path];
         let filePath;
-        filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`
+        // eslint-disable-next-line prefer-const
+        filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`;
 
-        const mdFilePath = join(__filename, '../../../generated/', language, 'authentication', `${tag.path}/${path.replace(/^\/api\/v3\//, '')}.md`)
+        const mdFilePath = join(__filename, '../../../generated/', language, 'authentication', `${tag.path}/${path.replace(/^\/api\/v3\//, '')}.md`);
 
         if (existsSync(mdFilePath)) {
           subCategory.children.push({
@@ -296,7 +296,7 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
 
 
     // 生成管理的 sidebar
-    let managementSubCategories = []
+    const managementSubCategories = [];
     for (const tag of managementTags) {
       const subCategory = {
         title: tag.name.split('/')[0],
@@ -305,14 +305,18 @@ exports.generateSidebar = async ({ languages, authenticaionTags, authenticationP
       };
       const apis = filterApisByTag(managementPaths, tag);
       if (Object.keys(apis).length === 0) {
+        // eslint-disable-next-line no-continue
         continue;
       }
+      // eslint-disable-next-line guard-for-in
       for (const path in apis) {
-        const data = apis[path]
+        const data = apis[path];
         let filePath;
-        filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`
+        // eslint-disable-next-line prefer-const
+        filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`;
 
-        const mdFilePath = join(__filename, '../../../generated/', language, 'management', `${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}.md`)
+        // eslint-disable-next-line max-len
+        const mdFilePath = join(__filename, '../../../generated/', language, 'management', `${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}.md`);
 
         if (existsSync(mdFilePath)) {
           subCategory.children.push({

@@ -1,8 +1,8 @@
-const fs = require('fs/promises');
-const path = require('path');
+// const fs = require('fs/promises');
+// const path = require('path');
 
-// Only uses get & post for now
-const AVAILABLE_METHODS = ['get', 'post', 'put', 'delete', 'patch'];
+// // Only uses get & post for now
+// const AVAILABLE_METHODS = ['get', 'post', 'put', 'delete', 'patch'];
 
 exports.getLanguages = async () => {
   const languages = [
@@ -12,11 +12,12 @@ exports.getLanguages = async () => {
     'python',
     'php',
     'csharp'
-  ]
-  return languages
+  ];
+  return languages;
 };
 
 exports.getTags = (tags) => {
+  // eslint-disable-next-line no-param-reassign
   tags = tags.map(({ name, description }) => ({
     name,
     description,
@@ -33,25 +34,27 @@ exports.getTags = (tags) => {
         name: realTagName,
         description: tag.description,
         path: realPath
-      })
+      });
     }
   }
   return realTags;
-}
+};
 
 exports.filterApisByTag = (paths, tag) => {
   const apis = {};
+  // eslint-disable-next-line guard-for-in, no-shadow
   for (const path in paths) {
+    // eslint-disable-next-line guard-for-in
     for (const method in paths[path]) {
       const api = paths[path][method];
       const tags = api.tags?.map(x => x.split('/')[0]);
       if (tags?.includes(tag.name) && !api['x-authing-hidden-from-sdk']) {
-        apis[path] = paths[path]
+        apis[path] = paths[path];
       }
     }
   }
   return apis;
-}
+};
 
 exports.getSchemaName = (schema) =>
   schema?.$ref.replace(/^#\/components\/schemas\//, '');

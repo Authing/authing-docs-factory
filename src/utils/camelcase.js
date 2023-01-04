@@ -4,26 +4,30 @@ const LEADING_CAPITAL = /^[\p{Lu}](?![\p{Lu}])/gu;
 const IDENTIFIER = /([\p{Alpha}\p{N}_]|$)/u;
 const SEPARATORS = /[_.\- ]+/;
 
-const LEADING_SEPARATORS = new RegExp('^' + SEPARATORS.source);
+const LEADING_SEPARATORS = new RegExp(`^${  SEPARATORS.source}`);
 const SEPARATORS_AND_IDENTIFIER = new RegExp(SEPARATORS.source + IDENTIFIER.source, 'gu');
-const NUMBERS_AND_IDENTIFIER = new RegExp('\\d+' + IDENTIFIER.source, 'gu');
+const NUMBERS_AND_IDENTIFIER = new RegExp(`\\d+${  IDENTIFIER.source}`, 'gu');
 
 const preserveCamelCase = (string, toLowerCase, toUpperCase) => {
 	let isLastCharLower = false;
 	let isLastCharUpper = false;
 	let isLastLastCharUpper = false;
 
+	// eslint-disable-next-line no-plusplus
 	for (let index = 0; index < string.length; index++) {
 		const character = string[index];
 
 		if (isLastCharLower && UPPERCASE.test(character)) {
-			string = string.slice(0, index) + '-' + string.slice(index);
+			// eslint-disable-next-line no-param-reassign
+			string = `${string.slice(0, index)  }-${  string.slice(index)}`;
 			isLastCharLower = false;
 			isLastLastCharUpper = isLastCharUpper;
 			isLastCharUpper = true;
+			// eslint-disable-next-line no-plusplus
 			index++;
 		} else if (isLastCharUpper && isLastLastCharUpper && LOWERCASE.test(character)) {
-			string = string.slice(0, index - 1) + '-' + string.slice(index - 1);
+			// eslint-disable-next-line no-param-reassign
+			string = `${string.slice(0, index - 1)  }-${  string.slice(index - 1)}`;
 			isLastLastCharUpper = isLastCharUpper;
 			isLastCharUpper = false;
 			isLastCharLower = true;
@@ -56,17 +60,20 @@ exports.camelCase = function camelCase(input, options) {
 		throw new TypeError('Expected the input to be `string | string[]`');
 	}
 
+	// eslint-disable-next-line no-param-reassign
 	options = {
 		pascalCase: false,
 		preserveConsecutiveUppercase: false,
-		...options,
+		...options
 	};
 
 	if (Array.isArray(input)) {
+		// eslint-disable-next-line no-param-reassign
 		input = input.map(x => x.trim())
 			.filter(x => x.length)
 			.join('-');
 	} else {
+		// eslint-disable-next-line no-param-reassign
 		input = input.trim();
 	}
 
@@ -93,15 +100,19 @@ exports.camelCase = function camelCase(input, options) {
 	const hasUpperCase = input !== toLowerCase(input);
 
 	if (hasUpperCase) {
+		// eslint-disable-next-line no-param-reassign
 		input = preserveCamelCase(input, toLowerCase, toUpperCase);
 	}
 
+	// eslint-disable-next-line no-param-reassign
 	input = input.replace(LEADING_SEPARATORS, '');
+	// eslint-disable-next-line no-param-reassign
 	input = options.preserveConsecutiveUppercase ? preserveConsecutiveUppercase(input, toLowerCase) : toLowerCase(input);
 
 	if (options.pascalCase) {
+		// eslint-disable-next-line no-param-reassign
 		input = toUpperCase(input.charAt(0)) + input.slice(1);
 	}
 
 	return postProcess(input, toUpperCase);
-}
+};
