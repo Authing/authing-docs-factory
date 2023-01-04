@@ -1,6 +1,6 @@
 curl http://localhost:3000/auth-openapi-json > authentication-openapi.json
 curl http://localhost:3000/openapi-json > management-openapi.json
-yarn build 
+yarn build
 
 # 生成新内容
 cp -R generated/node/* ../docs-v3/docs/reference/sdk/node/

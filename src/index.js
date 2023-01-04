@@ -6,24 +6,26 @@ const { getTags, getLanguages, filterApisByTag } = require('./utils/helper');
 const DIR = join(__dirname, '../generated');
 
 async function generateMarkdown(spec, languages) {
-  const isAuthApi = spec.info.title === 'Authing Authentication API'
+  const isAuthApi = spec.info.title === 'Authing 用户认证 API';
   const tags = getTags(spec.tags);
 
   // Generate Docs
   for (const language of languages) {
-    for (let tag of tags) {
+    for (const tag of tags) {
 
       // 只生成有 API 的目录
-      const apis = filterApisByTag(spec.paths, tag)
+      const apis = filterApisByTag(spec.paths, tag);
       if (Object.keys(apis).length === 0) {
-        continue
+        // eslint-disable-next-line no-continue
+        continue;
       }
 
       // Create directory
       // such as: generated/node/access-control-management/
-      const dir = isAuthApi ? join(DIR, language, 'authentication', tag.path.split('/')[0]) : join(DIR, language, 'management', tag.path.split('/')[0])
+      const dir = isAuthApi ? join(DIR, language, 'authentication', tag.path.split('/')[0]) : join(DIR, language, 'management', tag.path.split('/')[0]);
       await fs.mkdir(dir, { recursive: true });
-      for (let path in apis) {
+      // eslint-disable-next-line guard-for-in
+      for (const path in apis) {
         const options = apis[path];
         await generate({
           language,
@@ -59,9 +61,9 @@ async function main() {
   await generateMarkdown(managementSpec, languages);
 
   // 生成 Sidebar.json
-  await generateSidebar({ 
-    languages, 
-    authenticaionTags: getTags(authenticationSpec.tags), 
+  await generateSidebar({
+    languages,
+    authenticationTags: getTags(authenticationSpec.tags),
     authenticationPaths: authenticationSpec.paths,
     managementTags: getTags(managementSpec.tags),
     managementPaths: managementSpec.paths
