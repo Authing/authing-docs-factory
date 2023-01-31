@@ -5,14 +5,7 @@
 // const AVAILABLE_METHODS = ['get', 'post', 'put', 'delete', 'patch'];
 
 exports.getLanguages = async () => {
-  const languages = [
-    'java',
-    'node',
-    'go',
-    'python',
-    'php',
-    'csharp'
-  ];
+  const languages = ['java', 'node', 'go', 'python', 'php', 'csharp'];
   return languages;
 };
 
@@ -29,7 +22,7 @@ exports.getTags = (tags) => {
   for (const tag of tags) {
     const realTagName = tag.name.split('/')[0];
     const realPath = tag.path.split('/')[0];
-    if (!realTags.find(x => x.name === realTagName)) {
+    if (!realTags.find((x) => x.name === realTagName)) {
       realTags.push({
         name: realTagName,
         description: tag.description,
@@ -47,7 +40,7 @@ exports.filterApisByTag = (paths, tag) => {
     // eslint-disable-next-line guard-for-in
     for (const method in paths[path]) {
       const api = paths[path][method];
-      const tags = api.tags?.map(x => x.split('/')[0]);
+      const tags = api.tags?.map((x) => x.split('/')[0]);
       if (tags?.includes(tag.name) && !api['x-authing-hidden-from-sdk']) {
         apis[path] = paths[path];
       }
@@ -57,7 +50,7 @@ exports.filterApisByTag = (paths, tag) => {
 };
 
 exports.getSchemaName = (schema) =>
-  schema?.$ref.replace(/^#\/components\/schemas\//, '');
+  schema?.$ref?.replace(/^#\/components\/schemas\//, '');
 
 exports.getSchema = (schemaName, schemas) => {
   if (!schemaName) return;
@@ -100,8 +93,10 @@ exports.getSchemaModels = (schemaName, schemas) => {
         : this.getSchemaName(opts.items);
       result.push(childSchemaName);
       // getChildrenModels
-      const childModels = this.getSchemaModels(childSchemaName, schemas);
-      result.push(...childModels);
+      if (schemaName !== childSchemaName) {
+        const childModels = this.getSchemaModels(childSchemaName, schemas);
+        result.push(...childModels);
+      }
     }
   });
   return Array.from(new Set(result));
@@ -110,22 +105,23 @@ exports.getSchemaModels = (schemaName, schemas) => {
 exports.getExampleJson = (schemaName, schemas) => {
   const result = {};
   const schema = schemas[schemaName];
-  Object.entries(schema.properties).forEach(([property, opts]) => {
-    if (opts.allOf) {
-      result[property] = this.getExampleJson(
-        this.getSchemaName(schema.properties[property].allOf[0]),
-        schemas
-      );
-    }
-    if (opts.items && opts.items.$ref) {
-      result[property] = this.getExampleJson(
-        this.getSchemaName(schema.properties[property].items),
-        schemas
-      );
-    }
-    if (opts.example || opts.default) {
-      result[property] = opts.example || opts.default;
-    }
-  });
+  if (schema)
+    Object.entries(schema?.properties).forEach(([property, opts]) => {
+      if (opts.allOf) {
+        result[property] = this.getExampleJson(
+          this.getSchemaName(schema.properties[property].allOf[0]),
+          schemas
+        );
+      }
+      if (opts.items && opts.items.$ref) {
+        result[property] = this.getExampleJson(
+          this.getSchemaName(schema.properties[property].items),
+          schemas
+        );
+      }
+      if (opts.example || opts.default) {
+        result[property] = opts.example || opts.default;
+      }
+    });
   return result;
 };

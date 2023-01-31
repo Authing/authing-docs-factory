@@ -33,7 +33,7 @@
 
 ## 请求响应
 
-类型： `<%- response.name %>`
+类型： `<%- response?.name %>`
 
 | 名称 | 类型 | 描述 |
 | ---- | ---- | ---- |
@@ -54,6 +54,6 @@
 
 | 名称 | 类型 | <div style="width:80px">是否必填</div> | <div style="width:300px">描述</div> | <div style="width:200px">示例值</div> |
 | ---- |  ---- | ---- | ---- | ---- |
-<% Object.entries(model.properties).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) { %><%- p.type %><% } %> | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p.description.replace(/\n/g, '<br>') %> <% if(p.schema) { %>嵌套类型：<a href="#<%- p.schema %>"><%- p.schema %></a>。<% } %><%- p.maxItems ? `数组长度限制：${p.maxItems}。`: '' %>  | <% if(p.enum) { %><%= p.enum[0]; %><% } else if(p.example) { %> `<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
+<% Object.entries(model.properties).forEach(function([key,p]){ %>| <%- key %> | <% if(p.type) { %><%- p.type %><% } %> | <% if(p.required) { %>是<% } else { %>否<% }%> | <%- p?.description?.replace(/\n/g, '<br>') %> <% if(p.schema) { %>嵌套类型：<a href="#<%- p.schema %>"><%- p.schema %></a>。<% } %><%- p.maxItems ? `数组长度限制：${p.maxItems}。`: '' %>  | <% if(p.enum) { %><%= p.enum[0]; %><% } else if(p.example) { %> `<%- typeof p.example === 'object' ? JSON.stringify(p.example) : p.example %>`<% } %> |
 <% }); %>
 <% }); %>

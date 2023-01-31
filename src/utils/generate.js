@@ -22,11 +22,14 @@ const LANGUAGES = {
 
 const DIR = join(__dirname, '../../generated');
 
-const convertFirstCharToUpperCase = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+const convertFirstCharToUpperCase = (str) =>
+  str.charAt(0).toUpperCase() + str.slice(1);
 
-const camelToSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+const camelToSnakeCase = (str) =>
+  str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
-const getOperationName = (operationId) => camelCase(
+const getOperationName = (operationId) =>
+  camelCase(
     operationId
       .split('_')[1]
       .replace(/^[^a-zA-Z]+/g, '')
@@ -39,7 +42,7 @@ const getFuncName = (lang, operationId) => {
 
   if (lang === 'csharp') {
     opName = convertFirstCharToUpperCase(opName);
-  // eslint-disable-next-line eqeqeq
+    // eslint-disable-next-line eqeqeq
   } else if (lang == 'go') {
     opName = convertFirstCharToUpperCase(opName);
   } else if (lang === 'python') {
@@ -49,21 +52,29 @@ const getFuncName = (lang, operationId) => {
   return opName;
 };
 
-exports.generate = async ({ language, path, options, tag, components, isAuthApi }) => {
-
+exports.generate = async ({
+  language,
+  path,
+  options,
+  tag,
+  components,
+  isAuthApi
+}) => {
   try {
     const { requestBody, responses } = options;
     const schemaNameReq = getSchemaName(
       requestBody?.content['application/json'].schema
     );
     const schemaNameRes = getSchemaName(
-      responses['200'].content['application/json'].schema
+      responses['200']?.content?.['application/json']?.schema
     );
     const models = [
       ...getSchemaModels(schemaNameReq, components.schemas),
       ...getSchemaModels(schemaNameRes, components.schemas)
     ].map((name) => getSchema(name, components.schemas));
-    const ejsFile = isAuthApi ? join(__dirname, '../templates/authentication/main.ejs') : join(__dirname, '../templates/management/main.ejs');
+    const ejsFile = isAuthApi
+      ? join(__dirname, '../templates/authentication/main.ejs')
+      : join(__dirname, '../templates/management/main.ejs');
     const codeSamples = options['x-authing-code-samples'];
     const output = await ejs.renderFile(
       ejsFile,
@@ -93,19 +104,21 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
         // async: true
       }
     );
-    const file = isAuthApi ? join(
-      DIR,
-      language,
-      'authentication',
-      tag.path.split('/')[0],
-      `${path.replace(/^\/api\/v3\//, '')}.md`
-    ) : join(
-      DIR,
-      language,
-      'management',
-      tag.path.split('/')[0],
-      `${path.replace(/^\/api\/v3\//, '')}.md`
-    );
+    const file = isAuthApi
+      ? join(
+          DIR,
+          language,
+          'authentication',
+          tag.path.split('/')[0],
+          `${path.replace(/^\/api\/v3\//, '')}.md`
+        )
+      : join(
+          DIR,
+          language,
+          'management',
+          tag.path.split('/')[0],
+          `${path.replace(/^\/api\/v3\//, '')}.md`
+        );
     await fs.writeFile(file, output, {
       encoding: 'utf-8'
     });
@@ -114,7 +127,13 @@ exports.generate = async ({ language, path, options, tag, components, isAuthApi 
   }
 };
 
-exports.generateSidebar = async ({ languages, authenticationTags, authenticationPaths, managementTags, managementPaths }) => {
+exports.generateSidebar = async ({
+  languages,
+  authenticationTags,
+  authenticationPaths,
+  managementTags,
+  managementPaths
+}) => {
   // Generate Sidebar
   const PREFIX = '/reference/sdk/';
   await fs.mkdir(DIR, { recursive: true });
@@ -123,33 +142,33 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
     const category = `${PREFIX}${language}/`;
 
     const tokenDoc = {
-      'title': '管理 Token',
-      'children': [
+      title: '管理 Token',
+      children: [
         {
-          'title': '获取 Token',
-          'path': `/reference/sdk/${language}/authentication/管理-token/get-access-token.md`
+          title: '获取 Token',
+          path: `/reference/sdk/${language}/authentication/管理-token/get-access-token.md`
         },
         {
-          'title': '校验 Token',
-          'path': `/reference/sdk/${language}/authentication/管理-token/introspect-token.md`
+          title: '校验 Token',
+          path: `/reference/sdk/${language}/authentication/管理-token/introspect-token.md`
         },
         {
-          'title': '撤销 Token',
-          'path': `/reference/sdk/${language}/authentication/管理-token/revoke-token.md`
+          title: '撤销 Token',
+          path: `/reference/sdk/${language}/authentication/管理-token/revoke-token.md`
         }
       ]
     };
 
     const logoutDoc = {
-      'title': '登出',
-      'children': [
+      title: '登出',
+      children: [
         {
-          'title': '前端登出',
-          'path': `/reference/sdk/${language}/authentication/登出/front-channel-logout.md`
+          title: '前端登出',
+          path: `/reference/sdk/${language}/authentication/登出/front-channel-logout.md`
         },
         {
-          'title': '后端登出',
-          'path': `/reference/sdk/${language}/authentication/登出/backend-channel-logout.md`
+          title: '后端登出',
+          path: `/reference/sdk/${language}/authentication/登出/backend-channel-logout.md`
         }
       ]
     };
@@ -231,8 +250,8 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
             path: `${category}authentication/登录/signin-by-ad.md`
           },
           {
-            'title': '生成登录地址',
-            'path': `${category}authentication/登录/build-authorize-url.md`
+            title: '生成登录地址',
+            path: `${category}authentication/登录/build-authorize-url.md`
           }
         ]
       },
@@ -265,7 +284,7 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
       const subCategory = {
         title: tag.name.split('/')[0],
         // path: `${category}${tag.path}/`,
-        children: defaultCategories.find(x => x.tag === tag.name)?.apis || []
+        children: defaultCategories.find((x) => x.tag === tag.name)?.apis || []
       };
       const apis = filterApisByTag(authenticationPaths, tag);
       if (Object.keys(apis).length === 0) {
@@ -277,9 +296,18 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
         const data = apis[path];
         let filePath;
         // eslint-disable-next-line prefer-const
-        filePath = `${category}authentication/${tag.path}/${path.replace(/^\/api\/v3\//, '')}`;
+        filePath = `${category}authentication/${tag.path}/${path.replace(
+          /^\/api\/v3\//,
+          ''
+        )}`;
 
-        const mdFilePath = join(__filename, '../../../generated/', language, 'authentication', `${tag.path}/${path.replace(/^\/api\/v3\//, '')}.md`);
+        const mdFilePath = join(
+          __filename,
+          '../../../generated/',
+          language,
+          'authentication',
+          `${tag.path}/${path.replace(/^\/api\/v3\//, '')}.md`
+        );
 
         if (existsSync(mdFilePath)) {
           subCategory.children.push({
@@ -287,13 +315,11 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
             path: filePath
           });
         }
-
       }
       if (subCategory.children.length > 0) {
         authenticationSubCategories.push(subCategory);
       }
     }
-
 
     // 生成管理的 sidebar
     const managementSubCategories = [];
@@ -313,10 +339,18 @@ exports.generateSidebar = async ({ languages, authenticationTags, authentication
         const data = apis[path];
         let filePath;
         // eslint-disable-next-line prefer-const
-        filePath = `${category}management/${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}`;
+        filePath = `${category}management/${
+          tag.path.split('/')[0]
+        }/${path.replace(/^\/api\/v3\//, '')}`;
 
         // eslint-disable-next-line max-len
-        const mdFilePath = join(__filename, '../../../generated/', language, 'management', `${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}.md`);
+        const mdFilePath = join(
+          __filename,
+          '../../../generated/',
+          language,
+          'management',
+          `${tag.path.split('/')[0]}/${path.replace(/^\/api\/v3\//, '')}.md`
+        );
 
         if (existsSync(mdFilePath)) {
           subCategory.children.push({
